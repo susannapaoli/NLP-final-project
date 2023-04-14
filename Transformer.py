@@ -37,7 +37,7 @@ class TransformerTranslator(nn.Module):
     sequences of length T, has an hidden dimension of H, uses word vectors
     also of dimension H, and operates on minibatches of size N.
     """
-    def __init__(self, input_size, output_size, device, pad_idx, hidden_dim=128, num_heads=2, dim_feedforward=2048, dim_k=96, dim_v=96, dim_q=96, max_length=43):
+    def __init__(self, input_size, output_size, device, pad_idx, N_layers, hidden_dim=128, num_heads=2, dim_feedforward=2048, dim_k=96, dim_v=96, dim_q=96, max_length=43):
         """
         :param input_size: the size of the input, which equals to the number of words in source language vocabulary = vocab size
         :param output_size: the size of the output, which equals to the number of words in target language vocabulary
@@ -63,6 +63,7 @@ class TransformerTranslator(nn.Module):
         self.dim_v = dim_v
         self.dim_q = dim_q
         self.pad_idx = pad_idx
+        self.n_layers = N_layers
         
         seed_torch(0)
         
@@ -147,9 +148,19 @@ class TransformerTranslator(nn.Module):
         # You will need to use all of the methods you have previously defined above.#
         # You should only be calling TransformerTranslator class methods here.      #
         #############################################################################
-        embeddings = self.embed(inputs)
-        attention = self.multi_head_attention(embeddings)
-        ff = self.feedforward_layer(attention)
+    
+        embeddings_enc = self.embed(inputs)
+        
+        for i in range(self.n_layers):
+            
+            attention_enc = self.multi_head_attention(embeddings_enc)
+            ff = self.feedforward_layer(attention_enc)
+            embeddings_enc = ff
+
+        
+        
+        
+        
         outputs = self.final_layer(ff)
         #outputs = self.softm(lin)
         
