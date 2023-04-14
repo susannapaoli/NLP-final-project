@@ -194,18 +194,17 @@ class TransformerTranslator(nn.Module):
         # Use the provided 'Deliverable 2' layers initialized in the constructor.   #
         #############################################################################
         attentions = []
-        mask = (inputs != self.pad_idx).to(inputs.device)
-        print(f"inputs shape: {inputs.shape}")
-        print(f"mask shape: {mask.shape}")
-        mask = mask * -1e9
+ 
         for vectors in self.heads.values():
           q = vectors[0](inputs)
           k = vectors[1](inputs).to(self.device)
+          mask_k = (k != self.pad_idx)
+          mask_k = mask_k * -1e9
+          print(mask_k.shape)
           v = vectors[2](inputs).to(self.device)
           s = (q @ k.transpose(-2,-1))/np.sqrt(self.dim_k)
-          print(f"s shape: {s.shape}")
-          print(f"mask shape: {mask.shape}")
-          scores = s + mask 
+ 
+          scores = s 
           s = self.softmax(scores).to(self.device)
           
           att = s @ v
