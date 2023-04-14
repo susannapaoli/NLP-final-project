@@ -204,7 +204,7 @@ class TransformerTranslator(nn.Module):
           mask_q = mask_q * -1e9
           v = vectors[2](inputs).to(self.device)
             
-          mask_ s = (mask_q @ mask_k.transpose(-2, -1))
+          mask_s = (mask_q @ mask_k.transpose(-2, -1))
           s = (q @ k.transpose(-2,-1))/np.sqrt(self.dim_k)
           
  
