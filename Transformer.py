@@ -195,8 +195,8 @@ class TransformerTranslator(nn.Module):
         #############################################################################
         attentions = []
         mask = (inputs != self.pad_idx).to(inputs.device)
-        print(f"inputs dim = {inputs.shape()}")
-        print(f"mask dim = {mask.shape()}")
+        mask = mask.unsqueeze(1).unsqueeze(1) 
+    
         mask = mask * -1e9
         for vectors in self.heads.values():
           q = vectors[0](inputs)
