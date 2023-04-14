@@ -132,7 +132,7 @@ class TransformerTranslator(nn.Module):
         ##############################################################################
 
         
-    def forward(self, inputs):
+    def forward(self, inputs, target):
         """
         This function computes the full Transformer forward pass.
         Put together all of the layers you've developed in the correct order.
@@ -150,13 +150,19 @@ class TransformerTranslator(nn.Module):
         #############################################################################
     
         embeddings_enc = self.embed(inputs)
-        
+        embeddings_dec = self.embed(target)
         for i in range(self.n_layers):
             
             attention_enc = self.multi_head_attention(embeddings_enc)
             ff = self.feedforward_layer(attention_enc)
             embeddings_enc = ff
-
+        
+        attention_decoder = self.multi_head_attention(embeddings_dec)
+        for i in range(self.n_layers):
+            concat = torch.cat((attention_decoder, ff))
+            attention_dec = self.multi_head_attention(concat)
+            ff_ff = self.feedforward_layer(attention_dec)
+            attention_decoder = ff_ff
         
         
         
