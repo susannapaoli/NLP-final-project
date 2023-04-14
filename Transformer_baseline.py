@@ -28,7 +28,7 @@ import random
 
 ####### Do not modify these imports.
 
-class TransformerTranslator(nn.Module):
+class TransformerTranslatorBaseline(nn.Module):
     """
     A single-layer Transformer which encodes a sequence of text and 
     performs binary classification.
