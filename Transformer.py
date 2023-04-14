@@ -194,7 +194,7 @@ class TransformerTranslator(nn.Module):
         # Use the provided 'Deliverable 2' layers initialized in the constructor.   #
         #############################################################################
         attentions = []
-        mask = (mask != self.pad_idx).unsqueeze(1).float().to(inputs.device)
+        mask = (inputs != self.pad_idx).unsqueeze(1).float().to(inputs.device)
         for vectors in self.heads.values():
           q = vectors[0](inputs)
           k = vectors[1](inputs).to(self.device)
