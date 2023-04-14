@@ -199,7 +199,7 @@ class TransformerTranslator(nn.Module):
           q = vectors[0](inputs)
           k = vectors[1](inputs).to(self.device)
           v = vectors[2](inputs).to(self.device)
-          s = (q @ k.transpose(-2,-1))/np.sqrt(self.dim_k).to(self.device)
+          s = (q @ k.transpose(-2,-1))/np.sqrt(self.dim_k)
           scores = s * mask - 1e9 * (1 - mask)
           s = self.softmax(scores).to(self.device)
           
