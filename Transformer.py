@@ -193,29 +193,19 @@ class TransformerTranslator(nn.Module):
         # Use the provided 'Deliverable 2' layers initialized in the constructor.   #
         #############################################################################
         attentions = []
+        mask = (mask != self.pad_idx).unsqueeze(1).float().to(inputs.device)
         for vectors in self.heads.values():
           q = vectors[0](inputs)
           k = vectors[1](inputs).to(self.device)
           v = vectors[2](inputs).to(self.device)
-          s = self.softmax((q @ k.transpose(-2,-1))/np.sqrt(self.dim_k)).to(self.device)
+          s = (q @ k.transpose(-2,-1))/np.sqrt(self.dim_k).to(self.device)
+          scores = s * mask - 1e9 * (1 - mask)
+          s = self.softmax(scores).to(self.device)
+          
           att = s @ v
           attentions.append(att)        
         multi_head = torch.cat([heads for heads in attentions],dim = 2)
 
-        ### HEAD 1 ###
-        #q1 = self.q1(inputs)
-        #k1 = self.k1(inputs)
-        #v1 = self.v1(inputs)
-        #s1 = self.softmax((q1 @ k1.transpose(-2,-1))/np.sqrt(self.dim_k))
-        #head1 = s1 @ v1
-
-        ### HEAD 2 ###
-        #q2 = self.q2(inputs)
-        #k2 = self.k2(inputs)
-        #v2 = self.v2(inputs)
-        #s2 = self.softmax((q2 @ k2.transpose(-2,-1))/np.sqrt(self.dim_k))
-        #head2 = s2 @ v2
-        #multi_head = torch.cat((head1,head2),dim = 2)
         outputs = self.attention_head_projection(multi_head)
         outputs = self.norm_mh(torch.add(inputs,outputs))
         
