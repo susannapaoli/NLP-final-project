@@ -195,7 +195,7 @@ class TransformerTranslator(nn.Module):
         #############################################################################
         attentions = []
         mask = (inputs != self.pad_idx).to(inputs.device)
-        mask = mask.float() * -1e9
+        mask = mask * -1e9
         for vectors in self.heads.values():
           q = vectors[0](inputs)
           k = vectors[1](inputs).to(self.device)
