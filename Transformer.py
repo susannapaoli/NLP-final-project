@@ -200,11 +200,15 @@ class TransformerTranslator(nn.Module):
           k = vectors[1](inputs).to(self.device)
           mask_k = (k != self.pad_idx)
           mask_k = mask_k * -1e9
-          print(mask_k.shape)
+          mask_q = (q != self.pad_idx)
+          mask_q = mask_q * -1e9
           v = vectors[2](inputs).to(self.device)
+            
+          mask_ s = (mask_q @ mask_k.transpose(-2, -1))
           s = (q @ k.transpose(-2,-1))/np.sqrt(self.dim_k)
+          
  
-          scores = s 
+          scores = s + mask_s
           s = self.softmax(scores).to(self.device)
           
           att = s @ v
