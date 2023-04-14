@@ -195,14 +195,16 @@ class TransformerTranslator(nn.Module):
         #############################################################################
         attentions = []
         mask = (inputs != self.pad_idx).to(inputs.device)
-        mask = mask.unsqueeze(1).unsqueeze(1) 
-    
+        print(f"inputs shape: {inputs.shape})
+        print(f"mask shape: {mask.shape})
         mask = mask * -1e9
         for vectors in self.heads.values():
           q = vectors[0](inputs)
           k = vectors[1](inputs).to(self.device)
           v = vectors[2](inputs).to(self.device)
           s = (q @ k.transpose(-2,-1))/np.sqrt(self.dim_k)
+          print(f"s shape: {s.shape})
+          print(f"mask shape: {mask.shape})
           scores = s + mask 
           s = self.softmax(scores).to(self.device)
           
