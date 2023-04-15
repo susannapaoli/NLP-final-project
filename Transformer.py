@@ -149,22 +149,12 @@ class TransformerTranslator(nn.Module):
         # You should only be calling TransformerTranslator class methods here.      #
         #############################################################################
     
-        embeddings_enc = self.embed(inputs)
+        embeddings = self.embed(inputs)
         for i in range(self.n_layers):
+            attention = self.multi_head_attention_mask(embeddings)
+            ff = self.feedforward_layer(attention)
             
-            attention_enc = self.multi_head_attention(embeddings_enc)
-            ff = self.feedforward_layer(attention_enc)
-        
-        embeddings_dec = self.embed(target)
-        for i in range(self.n_layers):
-            attention_decoder = self.multi_head_attention_mask(embeddings_dec)
-            ff_ff = self.feedforward_layer(torch.cat((attention_decoder, ff)))
-            
-        
-        
-        
-        
-        outputs = self.final_layer(ff_ff)
+        outputs = self.final_layer(ff)
     
         
         ##############################################################################
