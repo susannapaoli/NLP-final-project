@@ -162,7 +162,7 @@ class TransformerTranslator(nn.Module):
         for i in range(self.n_layers):
             attention_dec = self.multi_head_attention(concat)
             ff_ff = self.feedforward_layer(attention_dec)
-            attention_decoder = ff_ff
+            concat = ff_ff
         
         
         
