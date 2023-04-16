@@ -150,13 +150,22 @@ class TransformerTranslator(nn.Module):
         #############################################################################
     
         embeddings = self.embed(inputs)
+        embeddings_dec = self.embed(target)
         
         for i in range(self.n_layers):
-            attention = self.multi_head_attention_mask(embeddings)
+            attention = self.multi_head_attention(embeddings)
             ff = self.feedforward_layer(attention)
             embeddings = ff
+        for i in range(self.n_layers):
+    
+            attention_mask = self.multi_head_attention_mask(embeddings_dec)
+            concat = torch.cat((attention_mask, ff))
+            attention_dec = self.multi_head_attention(concat)
+            ff_ff = self.feedforward_layer(attention_dec)
+            embeddings_dec = ff_ff
+                               
         
-        outputs = self.final_layer(ff)
+        outputs = self.final_layer(ff_ff)
     
         
         ##############################################################################
