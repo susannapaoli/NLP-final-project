@@ -167,11 +167,11 @@ class TransformerTranslator(nn.Module):
             concat = ff_ff
         
         
-        print("ff",ff.shape)
-
-        print("ff_ff",ff_ff.shape)
+   
         outputs = self.final_layer(ff_ff)
-        print("outputs",ouputs.shape)
+        
+        
+        
         
         ##############################################################################
         #                               END OF YOUR CODE                             #
