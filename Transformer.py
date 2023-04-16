@@ -37,7 +37,7 @@ class TransformerTranslator(nn.Module):
     sequences of length T, has an hidden dimension of H, uses word vectors
     also of dimension H, and operates on minibatches of size N.
     """
-    def __init__(self, input_size, output_size, device, pad_idx, N_layers, hidden_dim=128, num_heads=2, dim_feedforward=2048, dim_k=96, dim_v=96, dim_q=96, max_length=43):
+    def __init__(self, input_size, output_size, device, pad_idx, N_layers, batch, hidden_dim=128, num_heads=2, dim_feedforward=2048, dim_k=96, dim_v=96, dim_q=96, max_length=43):
         """
         :param input_size: the size of the input, which equals to the number of words in source language vocabulary = vocab size
         :param output_size: the size of the output, which equals to the number of words in target language vocabulary
@@ -64,6 +64,7 @@ class TransformerTranslator(nn.Module):
         self.dim_q = dim_q
         self.pad_idx = pad_idx
         self.n_layers = N_layers
+        self.batch = batch
         
         seed_torch(0)
         
@@ -130,7 +131,7 @@ class TransformerTranslator(nn.Module):
         ##############################################################################
         #                               END OF YOUR CODE                             #
         ##############################################################################
-        self.projection = nn.Linear(2*self.hidden_dim, self.hidden_dim)
+        self.projection = nn.Linear(2*self.batch, self.batch)
 
         
     def forward(self, inputs, target):
@@ -159,15 +160,15 @@ class TransformerTranslator(nn.Module):
             embeddings_enc = ff
         
         attention_decoder = self.multi_head_attention_mask(embeddings_dec)
-        concat = torch.cat((attention_decoder, ff),dim = -1)
-        concat = self.projection(concat)        
+        concat = torch.cat((attention_decoder, ff))
+               
         for i in range(self.n_layers):
             attention_dec = self.multi_head_attention(concat)
             ff_ff = self.feedforward_layer(attention_dec)
             concat = ff_ff
         
         
-   
+        ff_ff = self.projection(ff_ff)
         outputs = self.final_layer(ff_ff)
         
         
