@@ -152,9 +152,9 @@ class TransformerTranslator(nn.Module):
         embeddings_enc = self.embed(inputs)
         
        for i in range(self.n_layers):
-            attention_enc = self.multi_head_attention_mask(embeddings_enc)
-            ff_ff = self.feedforward_layer(attention_enc)
-            embeddings_enc = ff_ff
+        attention_enc = self.multi_head_attention_mask(embeddings_enc)
+        ff_ff = self.feedforward_layer(attention_enc)
+        embeddings_enc = ff_ff
         
         
         outputs = self.final_layer(ff_ff)
