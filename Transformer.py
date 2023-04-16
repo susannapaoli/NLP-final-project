@@ -130,6 +130,7 @@ class TransformerTranslator(nn.Module):
         ##############################################################################
         #                               END OF YOUR CODE                             #
         ##############################################################################
+        self.projection = nn.Linear(2*self.hidden_dim, self.hidden_dim)
 
         
     def forward(self, inputs, target):
@@ -158,7 +159,8 @@ class TransformerTranslator(nn.Module):
             embeddings_enc = ff
         
         attention_decoder = self.multi_head_attention_mask(embeddings_dec)
-        concat = torch.cat((attention_decoder, ff))
+        concat = torch.cat((attention_decoder, ff),dim = -1)
+        concat = self.projection(concat)        
         for i in range(self.n_layers):
             attention_dec = self.multi_head_attention(concat)
             ff_ff = self.feedforward_layer(attention_dec)
