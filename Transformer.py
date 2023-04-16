@@ -164,7 +164,7 @@ class TransformerTranslator(nn.Module):
             ff_ff = self.feedforward_layer(attention_dec)
             attention_decoder = ff_ff
         
-        outputs = self.final_layer(ff)
+        outputs = self.final_layer(ff_ff)
     
         
         ##############################################################################
