@@ -1,3 +1,10 @@
+import torch
+import torch.nn as nn
+import torch.optim as optim
+from torch.utils.data import DataLoader
+from torchtext.datasets import Multi30k
+from torchtext.data import Field, BucketIterator
+
 class Transformer(nn.Module):
     def __init__(self, input_dim, output_dim, hid_dim, n_layers, n_heads, pf_dim, dropout, device):
         super().__init__()
