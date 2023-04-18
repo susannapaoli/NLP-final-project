@@ -25,6 +25,7 @@ import numpy as np
 import torch
 from torch import nn
 import random
+from torch.nn import TransformerEncoder, TransformerEncoderLayer
 
 ####### Do not modify these imports.
 
@@ -76,6 +77,8 @@ class TransformerTranslator(nn.Module):
         ##############################################################################
         self.embeddingL = nn.Embedding(self.input_size,self.hidden_dim)
         self.posembeddingL = nn.Embedding(self.max_length,self.hidden_dim)
+        encoder_layers = TransformerEncoderLayer(self.word_embedding_dim, self.num_heads = num_heads, self.dim_feedforward)
+        self.transformer_encoder = TransformerEncoder(encoder_layers, self.n_layers)
 
         ##############################################################################
         #                               END OF YOUR CODE                             #
@@ -193,7 +196,10 @@ class TransformerTranslator(nn.Module):
         #############################################################################
         token_emb = self.embeddingL(inputs)
         positional_emb = self.posembeddingL(torch.arange(inputs.shape[1]).to(self.device))
-        embeddings = torch.add(token_emb,positional_emb)  
+        embeddings = torch.add(token_emb, positional_emb)
+        embeddings = embeddings.transpose(0, 1)  
+        embeddings = self.transformer_encoder(embeddings)
+        embeddings = embeddings[-1, :, :]
         ##############################################################################
         #                               END OF YOUR CODE                             #
         ##############################################################################
