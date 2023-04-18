@@ -172,7 +172,7 @@ class TransformerTranslator(nn.Module):
             embeddings_dec = ff_ff
         
         
-        ff_ff = self.projection(ff_ff)
+        #ff_ff = self.projection(ff_ff)
         
         outputs = self.final_layer(ff_ff)
         
