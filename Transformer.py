@@ -240,7 +240,7 @@ class TransformerTranslator(nn.Module):
           
           att = s @ v
           attentions.append(att)        
-        multi_head = torch.cat([heads for heads in attentions],dim = 2)
+        multi_head = torch.cat([heads for heads in attentions],dim = -1)
 
         outputs = self.attention_head_projection(multi_head)
         outputs = self.norm_mh(torch.add(inputs,outputs))
@@ -273,7 +273,7 @@ class TransformerTranslator(nn.Module):
           s = self.softmax((q @ k.transpose(-2,-1))/np.sqrt(self.dim_k)).to(self.device)
           att = s @ v
           attentions.append(att)        
-        multi_head = torch.cat([heads for heads in attentions],dim = 2)
+        multi_head = torch.cat([heads for heads in attentions],dim = -1)
 
         outputs = self.attention_head_projection(multi_head)
         outputs = self.norm_mh(torch.add(inputs,outputs))
