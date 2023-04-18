@@ -173,8 +173,9 @@ class TransformerTranslator(nn.Module):
         
         
         #ff_ff = self.projection(ff_ff)
-        
+        print("ff_FF", ff_ff.shape)
         outputs = self.final_layer(ff_ff)
+        print("outputs", outputs.shape)
         
        
         
