@@ -197,9 +197,7 @@ class TransformerTranslator(nn.Module):
         token_emb = self.embeddingL(inputs)
         positional_emb = self.posembeddingL(torch.arange(inputs.shape[1]).to(self.device))
         embeddings = torch.add(token_emb, positional_emb)
-        embeddings = embeddings.transpose(0, 1)  
-        embeddings = self.transformer_encoder(embeddings)
-        embeddings = embeddings[-1, :, :]
+       
         ##############################################################################
         #                               END OF YOUR CODE                             #
         ##############################################################################
