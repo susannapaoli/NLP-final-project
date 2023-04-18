@@ -171,9 +171,9 @@ class TransformerTranslator(nn.Module):
             ff_ff = self.feedforward_layer(attention_dec)
             embeddings_dec = ff_ff
         
-        
+        print("ff_FF prima", ff_ff.shape)
         ff_ff = ff_ff.transpose(0,1)
-        print("ff_FF", ff_ff.shape)
+        print("ff_FF dopo", ff_ff.shape)
         ff_ff = self.projection(ff_ff)
         ff_ff = ff_ff.transpose(0,1)
         outputs = self.final_layer(ff_ff)
