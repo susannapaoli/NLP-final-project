@@ -172,10 +172,10 @@ class TransformerTranslator(nn.Module):
             embeddings_dec = ff_ff
         
         print("ff_FF prima", ff_ff.shape)
-        ff_ff = ff_ff.transpose(0,1)
+        ff_ff = ff_ff.transpose(0,2)
         print("ff_FF dopo", ff_ff.shape)
         ff_ff = self.projection(ff_ff)
-        ff_ff = ff_ff.transpose(0,1)
+        ff_ff = ff_ff.transpose(0,2)
         outputs = self.final_layer(ff_ff)
         print("outputs", outputs.shape)
         
