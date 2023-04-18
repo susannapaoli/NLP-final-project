@@ -77,7 +77,7 @@ class TransformerTranslator(nn.Module):
         ##############################################################################
         self.embeddingL = nn.Embedding(self.input_size,self.hidden_dim)
         self.posembeddingL = nn.Embedding(self.max_length,self.hidden_dim)
-        encoder_layers = TransformerEncoderLayer(self.word_embedding_dim, self.num_heads = num_heads, self.dim_feedforward)
+        encoder_layers = TransformerEncoderLayer(self.word_embedding_dim, self.num_heads, self.dim_feedforward)
         self.transformer_encoder = TransformerEncoder(encoder_layers, self.n_layers)
 
         ##############################################################################
@@ -106,7 +106,7 @@ class TransformerTranslator(nn.Module):
         #self.v2 = nn.Linear(self.hidden_dim, self.dim_v)
         #self.q2 = nn.Linear(self.hidden_dim, self.dim_q)
         
-        self.softmax = nn.Softmax(dim=2)
+        self.softmax = nn.Softmax(dim=-1)
         self.attention_head_projection = nn.Linear(self.dim_v * self.num_heads, self.hidden_dim)
         self.norm_mh = nn.LayerNorm(self.hidden_dim)
 
@@ -130,7 +130,7 @@ class TransformerTranslator(nn.Module):
         # Deliverable 4: Initialize what you need for the final layer (1-2 lines).   #
         ##############################################################################
         self.lin_out = nn.Linear(self.hidden_dim,self.output_size)
-        self.softm = nn.Softmax(dim = 2)
+        self.softm = nn.Softmax(dim = -1)
         ##############################################################################
         #                               END OF YOUR CODE                             #
         ##############################################################################
