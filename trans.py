@@ -3,7 +3,6 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
 from torchtext.datasets import Multi30k
-from torchtext.data import Field, BucketIterator
 
 class Transformer(nn.Module):
     def __init__(self, input_dim, output_dim, hid_dim, n_layers, n_heads, pf_dim, dropout, device):
@@ -38,7 +37,7 @@ class Transformer(nn.Module):
 
     def create_padding_mask(self, seq):
         # seq shape: (seq_len, N)
-        mask = (seq == self.src_embedding.padding_idx).transpose(0, 1)
+        mask = (seq == self.src_embedding.padding_idx).permute(1, 0)
         return mask
 
     def create_src_mask(self, src):
