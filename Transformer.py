@@ -134,7 +134,7 @@ class TransformerTranslator(nn.Module):
         ##############################################################################
         #                               END OF YOUR CODE                             #
         ##############################################################################
-        self.projection = nn.Linear(2*self.hidden_dim, self.hidden_dim)
+        self.projection = nn.Linear((1+self.n_layers)*self.batch, self.batch)
 
         
     def forward(self, inputs, target):
@@ -172,10 +172,11 @@ class TransformerTranslator(nn.Module):
             embeddings_dec = ff_ff
         
         
-        #ff_ff = self.projection(ff_ff)
+        
         print("ff_FF", ff_ff.shape)
         outputs = self.final_layer(ff_ff)
         print("outputs", outputs.shape)
+        outputs = self.projection(outputs)
         
        
         
