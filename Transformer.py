@@ -77,9 +77,6 @@ class TransformerTranslator(nn.Module):
         ##############################################################################
         self.embeddingL = nn.Embedding(self.input_size,self.hidden_dim)
         self.posembeddingL = nn.Embedding(self.max_length,self.hidden_dim)
-        encoder_layers = TransformerEncoderLayer(self.word_embedding_dim, self.num_heads, self.dim_feedforward)
-        self.transformer_encoder = TransformerEncoder(encoder_layers, self.n_layers)
-
         ##############################################################################
         #                               END OF YOUR CODE                             #
         ##############################################################################
@@ -134,7 +131,6 @@ class TransformerTranslator(nn.Module):
         ##############################################################################
         #                               END OF YOUR CODE                             #
         ##############################################################################
-        self.projection = nn.Linear(2*self.batch, self.batch)
 
         
     def forward(self, inputs, target):
@@ -159,30 +155,18 @@ class TransformerTranslator(nn.Module):
         for i in range(self.n_layers):
             
             attention_enc = self.multi_head_attention(embeddings_enc)
-            ff = self.feedforward_layer(attention_enc)
-            embeddings_enc = ff
+            encoder_output = self.feedforward_layer(attention_enc)
+            embeddings_enc = encoder_output
         
         
         for i in range(self.n_layers):
             attention_decoder = self.multi_head_attention_mask(embeddings_dec)
-            concat = torch.cat((ff, attention_decoder), dim=-1 )
-            concat = self.projection(concat)
-            attention_dec = self.multi_head_attention(concat)
-            ff_ff = self.feedforward_layer(attention_dec)
-            embeddings_dec = ff_ff
+            attention_dec = self.decoder_attention(attention_decoder,encoder_output)
+            decoder_output = self.feedforward_layer(attention_dec)
+            embeddings_dec = decoder_output
             
+        outputs = self.final_layer(decoder_output)
         
-        
-       
-        outputs = self.final_layer(ff_ff)
-        
-        
-        
-       
-        
-        ##############################################################################
-        #                               END OF YOUR CODE                             #
-        ##############################################################################
         return outputs
     
     
@@ -192,18 +176,12 @@ class TransformerTranslator(nn.Module):
         :returns embeddings: floatTensor of shape (N,T,H)
         """
         #############################################################################
-        # TODO:
-        # Deliverable 1: Implement the embedding lookup.                            #
-        # Note: word_to_ix has keys from 0 to self.vocab_size - 1                   #
-        # This will take a few lines.                                               #
+        # Embedding layer combining normal and positional embedding                 #
         #############################################################################
         token_emb = self.embeddingL(inputs)
         positional_emb = self.posembeddingL(torch.arange(inputs.shape[1]).to(self.device))
         embeddings = torch.add(token_emb, positional_emb)
-       
-        ##############################################################################
-        #                               END OF YOUR CODE                             #
-        ##############################################################################
+
         return embeddings
         
     def multi_head_attention_mask(self, inputs):
@@ -214,12 +192,10 @@ class TransformerTranslator(nn.Module):
         Traditionally we'd include a padding mask here, so that pads are ignored.
         This is a simplified implementation.
         """
-        
-        
         #############################################################################
-        # TODO:
-        # Deliverable 2: Implement multi-head self-attention followed by add + norm.#
-        # Use the provided 'Deliverable 2' layers initialized in the constructor.   #
+        #
+        # Implemented MASKED multi-head self-attention followed by add + norm.      #
+        #                                                                           #
         #############################################################################
         attentions = []
  
@@ -246,9 +222,6 @@ class TransformerTranslator(nn.Module):
         outputs = self.attention_head_projection(multi_head)
         outputs = self.norm_mh(torch.add(inputs,outputs))
         
-        ##############################################################################
-        #                               END OF YOUR CODE                             #
-        ##############################################################################
         return outputs
     
     def multi_head_attention(self, inputs):
@@ -261,11 +234,11 @@ class TransformerTranslator(nn.Module):
         """
         
         
-        #############################################################################
-        # TODO:
-        # Deliverable 2: Implement multi-head self-attention followed by add + norm.#
-        # Use the provided 'Deliverable 2' layers initialized in the constructor.   #
-        #############################################################################
+        ################################################################################
+        #                                                                              #
+        # Implemented multi-head self-attention for the encoder followed by add + norm.#
+        #                                                                              #
+        ################################################################################
         attentions = []
         for vectors in self.heads.values():
           q = vectors[0](inputs)
@@ -279,12 +252,40 @@ class TransformerTranslator(nn.Module):
         outputs = self.attention_head_projection(multi_head)
         outputs = self.norm_mh(torch.add(inputs,outputs))
         
-        ##############################################################################
-        #                               END OF YOUR CODE                             #
-        ##############################################################################
         return outputs
     
-    
+     def decoder_attention(self, inputs, encoder_output):
+        """
+        :param inputs: float32 Tensor of shape (N,T,H)
+        :returns outputs: float32 Tensor of shape (N,T,H)
+        
+        Traditionally we'd include a padding mask here, so that pads are ignored.
+        This is a simplified implementation.
+        """
+        
+        
+        ################################################################################
+        #                                                                              #
+        # Implemented multi-head self-attention for the decoder followed by add + norm.#
+        # This does cross attention combining encoder output and decoder input         #
+        ################################################################################
+        attentions = []
+        for vectors in self.heads.values():
+          q = vectors[0](inputs)
+          k = vectors[1](encoder_output).to(self.device)
+          v = vectors[2](encoder_output).to(self.device)
+          print("q", q.shape)
+          print("k", k.shape)
+          print("v", v.shape)
+          s = self.softmax((q @ k.transpose(-2,-1))/np.sqrt(self.dim_k)).to(self.device)
+          att = s @ v
+          attentions.append(att)        
+        multi_head = torch.cat([heads for heads in attentions],dim = -1)
+
+        outputs = self.attention_head_projection(multi_head)
+        outputs = self.norm_mh(torch.add(inputs,outputs))
+       
+        return outputs
     
     
     def feedforward_layer(self, inputs):
