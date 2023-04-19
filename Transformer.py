@@ -274,9 +274,6 @@ class TransformerTranslator(nn.Module):
           q = vectors[0](inputs)
           k = vectors[1](encoder_output).to(self.device)
           v = vectors[2](encoder_output).to(self.device)
-          print("q", q.shape)
-          print("k", k.shape)
-          print("v", v.shape)
           s = self.softmax((q @ k.transpose(-2,-1))/np.sqrt(self.dim_k)).to(self.device)
           att = s @ v
           attentions.append(att)        
