@@ -254,7 +254,7 @@ class TransformerTranslator(nn.Module):
         
         return outputs
     
-     def decoder_attention(self, inputs, encoder_output):
+    def decoder_attention(self, inputs, encoder_output):
         """
         :param inputs: float32 Tensor of shape (N,T,H)
         :returns outputs: float32 Tensor of shape (N,T,H)
