@@ -1,4 +1,4 @@
-    """
+"""
 Transformer model.  (c) 2021 Georgia Tech
 Copyright 2021, Georgia Institute of Technology (Georgia Tech)
 Atlanta, Georgia 30332
