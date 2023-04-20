@@ -25,9 +25,6 @@ import numpy as np
 import torch
 from torch import nn
 import random
-from torch.nn import TransformerEncoder, TransformerEncoderLayer
-
-####### Do not modify these imports.
 
 class TransformerTranslator(nn.Module):
     """
@@ -65,7 +62,6 @@ class TransformerTranslator(nn.Module):
         self.dim_q = dim_q
         self.pad_idx = pad_idx
         self.n_layers = N_layers
-        self.batch = batch
         
         seed_torch(0)
         
