@@ -1,5 +1,11 @@
 # NLP Final Project
 
-Report link: https://www.overleaf.com/project/6439ac095a6dec23a7ecb6c0
+The directory contains all the files needed to run the full notebook which gathers the results of our analysis.
+The notebook begins with the data preprocessing sections (data retrieval, tokenization, data loaders, train/evaluate/translate functions, etc.) followed by the 4 main sections. The latter have a call to the specific model, its training, a print of some reference and candidate translations and valuation perplexity and BLEU scores as evaluation methods for the analysis.
+Following the notebook's order, we have 
+1) Transformer baseline whose code is found in Transformer_baseline.py
+2) Transformer improved foloowing the paper "Attention is all you need" in Transformer.py
+3) Transformer using BERT embeddings in Transformer_BERT.py
+4) Transformer using GPT2 embeddings in Transformer_GPT.py
 
 
