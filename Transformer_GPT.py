@@ -20,12 +20,11 @@ import numpy as np
 import torch
 from torch import nn
 import random
-from torch.nn import TransformerEncoder, TransformerEncoderLayer
-from transformers import BertModel, BertTokenizer
+from transformers import GPT2Model 
 
 ####### Do not modify these imports.
 
-class TransformerTranslatorBERT(nn.Module):
+class TransformerTranslatorGPT(nn.Module):
     """
     A single-layer Transformer which encodes a sequence of text and 
     performs binary classification.
@@ -44,7 +43,7 @@ class TransformerTranslatorBERT(nn.Module):
         :param dim_q: the dimensionality of the query vectors
         :param dim_v: the dimensionality of the value vectors
         """
-        super(TransformerTranslatorBERT, self).__init__()
+        super(TransformerTranslatorGPT, self).__init__()
         assert hidden_dim % num_heads == 0
         
         self.num_heads = num_heads
