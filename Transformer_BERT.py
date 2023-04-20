@@ -50,7 +50,7 @@ class TransformerTranslatorBERT(nn.Module):
         :param dim_q: the dimensionality of the query vectors
         :param dim_v: the dimensionality of the value vectors
         """
-        super(TransformerTranslator, self).__init__()
+        super(TransformerTranslatorBERT, self).__init__()
         assert hidden_dim % num_heads == 0
         
         self.num_heads = num_heads
