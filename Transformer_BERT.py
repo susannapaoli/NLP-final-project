@@ -1,22 +1,17 @@
-"""
+    """
 Transformer model.  (c) 2021 Georgia Tech
-
 Copyright 2021, Georgia Institute of Technology (Georgia Tech)
 Atlanta, Georgia 30332
 All Rights Reserved
-
 Template code for CS 7643 Deep Learning
-
 Georgia Tech asserts copyright ownership of this template and all derivative
 works, including solutions to the projects assigned in this course. Students
 and other users of this template code are advised not to share it with others
 or to make it available on publicly viewable websites including repositories
 such as Github, Bitbucket, and Gitlab.  This copyright statement should
 not be removed or edited.
-
 Sharing solutions with current or future students of CS 7643 Deep Learning is
 prohibited and subject to being investigated as a GT honor code violation.
-
 -----do not edit anything above this line---
 """
 
@@ -25,16 +20,12 @@ import numpy as np
 import torch
 from torch import nn
 import random
-from torch.nn import TransformerEncoder, TransformerEncoderLayer
-from transformers import BertModel, BertTokenizer
-
-####### Do not modify these imports.
+from transformers import BertModel
 
 class TransformerTranslatorBERT(nn.Module):
     """
     A single-layer Transformer which encodes a sequence of text and 
     performs binary classification.
-
     The model has a vocab size of V, works on
     sequences of length T, has an hidden dimension of H, uses word vectors
     also of dimension H, and operates on minibatches of size N.
@@ -66,91 +57,46 @@ class TransformerTranslatorBERT(nn.Module):
         self.dim_q = dim_q
         self.pad_idx = pad_idx
         self.n_layers = N_layers
-        self.batch = batch
         
         seed_torch(0)
         
-        ##############################################################################
-        # TODO:
-        # Deliverable 1: Initialize what you need for the embedding lookup.          #
-        # You will need to use the max_length parameter above.                       #
-        # Don’t worry about sine/cosine encodings- use positional encodings.         #
-        ##############################################################################
+#Initialize the embedding layer, the positional embedding  and the BERT pre-trained embedding. #
         self.embeddingL = nn.Embedding(self.input_size,self.hidden_dim)
         self.posembeddingL = nn.Embedding(self.max_length,self.hidden_dim)
         self.bert = BertModel.from_pretrained('bert-base-uncased')
-        ##############################################################################
-        #                               END OF YOUR CODE                             #
-        ##############################################################################
-        
-        
-        ##############################################################################
-        # Deliverable 2: Initializations for multi-head self-attention.              #
-        # You don't need to do anything here. Do not modify this code.               #
-        ##############################################################################
+
+# Initialize multi-head self-attention for as many heads as we want #
         self.heads = {}
         for head in range(self.num_heads):
-        # Head #1
           k = nn.Linear(self.hidden_dim, self.dim_k).to(self.device)
           v = nn.Linear(self.hidden_dim, self.dim_v).to(self.device)
           q = nn.Linear(self.hidden_dim, self.dim_q).to(self.device)
         
           self.heads[head] = (q,k,v)
-        #self.k1 = nn.Linear(self.hidden_dim, self.dim_k)
-        #self.v1 = nn.Linear(self.hidden_dim, self.dim_v)
-        #self.q1 = nn.Linear(self.hidden_dim, self.dim_q)
-        
-        # Head #2
-        #self.k2 = nn.Linear(self.hidden_dim, self.dim_k)
-        #self.v2 = nn.Linear(self.hidden_dim, self.dim_v)
-        #self.q2 = nn.Linear(self.hidden_dim, self.dim_q)
-        
         self.softmax = nn.Softmax(dim=-1)
+        
         self.attention_head_projection = nn.Linear(self.dim_v * self.num_heads, self.hidden_dim)
         self.norm_mh = nn.LayerNorm(self.hidden_dim)
+# Initialize  the feed-forward layer and its normalization # 
 
-        
-        ##############################################################################
-        # TODO:
-        # Deliverable 3: Initialize what you need for the feed-forward layer.        # 
-        # Don't forget the layer normalization.                                      #
-        ##############################################################################
         self.ff_lay1 = nn.Linear(self.hidden_dim,self.dim_feedforward) 
         self.relu = nn.ReLU()
         self.ff_lay2 = nn.Linear(self.dim_feedforward,self.hidden_dim) 
         self.ff_normalize = nn.LayerNorm(self.hidden_dim)
-        ##############################################################################
-        #                               END OF YOUR CODE                             #
-        ##############################################################################
-
-        
-        ##############################################################################
-        # TODO:
-        # Deliverable 4: Initialize what you need for the final layer (1-2 lines).   #
-        ##############################################################################
+ # Initialize  the final layer   #
         self.lin_out = nn.Linear(self.hidden_dim,self.output_size)
         self.softm = nn.Softmax(dim = -1)
-        ##############################################################################
-        #                               END OF YOUR CODE                             #
-        ##############################################################################
 
-        
     def forward(self, inputs, target):
         """
         This function computes the full Transformer forward pass.
-        Put together all of the layers you've developed in the correct order.
-
         :param inputs: a PyTorch tensor of shape (N,T). These are integer lookups.
-
-        :returns: the model outputs. Should be scores of shape (N,T,output_size).
+               targets: a PyTorch tensor containing golden labels
+        :returns: the model outputs. 
         """
-
-        #############################################################################
-        # TODO:
-        # Deliverable 5: Implement the full Transformer stack for the forward pass. #
-        # You will need to use all of the methods you have previously defined above.#
-        # You should only be calling TransformerTranslator class methods here.      #
-        #############################################################################
+# Implemented  full Transformer stack for the forward pass looping over heads and layers and 
+# using cross-self attention on decoder inputs and encoder outputs after the masked attention 
+# on decoder embeddings.
     
         embeddings_enc = self.embed(inputs)
         embeddings_dec = self.embed(target)
@@ -178,15 +124,14 @@ class TransformerTranslatorBERT(nn.Module):
         :returns embeddings: floatTensor of shape (N,T,H)
         """
         #############################################################################
-        # Embedding layer combining normal and positional embedding                 #
+        # Embedding layer combining normal and positional embedding. Here we also   #
+        # add BERT pre-trained embeddings to enpower our model.                     #
         #############################################################################
         token_emb = self.embeddingL(inputs)
         positional_emb = self.posembeddingL(torch.arange(inputs.shape[1]).to(self.device))
-        
         bert_outputs = self.bert(inputs)[0]
 
         embeddings = torch.add(token_emb, positional_emb) + bert_outputs
-
         return embeddings
         
     def multi_head_attention_mask(self, inputs):
@@ -194,13 +139,11 @@ class TransformerTranslatorBERT(nn.Module):
         :param inputs: float32 Tensor of shape (N,T,H)
         :returns outputs: float32 Tensor of shape (N,T,H)
         
-        Traditionally we'd include a padding mask here, so that pads are ignored.
-        This is a simplified implementation.
+        We include a padding mask here, so that pads are ignored. In this way we implement
+        a complete version of the transformer architecture
         """
         #############################################################################
-        #
-        # Implemented MASKED multi-head self-attention followed by add + norm.      #
-        #                                                                           #
+        #        MASKED multi-head self-attention followed by add + norm.           #
         #############################################################################
         attentions = []
  
@@ -234,14 +177,13 @@ class TransformerTranslatorBERT(nn.Module):
         :param inputs: float32 Tensor of shape (N,T,H)
         :returns outputs: float32 Tensor of shape (N,T,H)
         
-        Traditionally we'd include a padding mask here, so that pads are ignored.
-        This is a simplified implementation.
-        """
-        
+        This version does not include a padding mask. This is a simplified implementation
+        used as a first self-attention layer on both encoder and decoder's embeddings.
+        """       
         
         ################################################################################
         #                                                                              #
-        # Implemented multi-head self-attention for the encoder followed by add + norm.#
+        #       Multi-head self-attention for the encoder followed by add + norm.      #
         #                                                                              #
         ################################################################################
         attentions = []
@@ -262,12 +204,13 @@ class TransformerTranslatorBERT(nn.Module):
     def decoder_attention(self, inputs, encoder_output):
         """
         :param inputs: float32 Tensor of shape (N,T,H)
+               encoder_outputs: Tensor including the outputs of the encoder 
         :returns outputs: float32 Tensor of shape (N,T,H)
         
-        Traditionally we'd include a padding mask here, so that pads are ignored.
-        This is a simplified implementation.
-        """
-        
+        This version of the attention reproduces the cross self-attention mechanism.
+        It matches the embedded and masked decoder input(using teaching enforcement) and
+        encoder's output to better understand the order of the words in the translations.
+        """       
         
         ################################################################################
         #                                                                              #
@@ -297,21 +240,15 @@ class TransformerTranslatorBERT(nn.Module):
         """
         
         #############################################################################
-        # TODO:
-        # Deliverable 3: Implement the feedforward layer followed by add + norm.    #
-        # Use a ReLU activation and apply the linear layers in the order you        #
-        # initialized them.                                                         #
-        # This should not take more than 3-5 lines of code.                         #
+        #                                                                           #
+        #  Implemented 2-layer feedforward using ReLU activations followed          #
+        #   by add + norm.                                                          #
         #############################################################################
         lay1 = self.ff_lay1(inputs)
         lay2 = self.ff_lay2(self.relu(lay1))
 
-
         outputs = self.ff_normalize(torch.add(lay2,inputs))
-        
-        ##############################################################################
-        #                               END OF YOUR CODE                             #
-        ##############################################################################
+
         return outputs
         
     
@@ -320,17 +257,11 @@ class TransformerTranslatorBERT(nn.Module):
         :param inputs: float32 Tensor of shape (N,T,H)
         :returns outputs: float32 Tensor of shape (N,T,V)
         """
-        
         #############################################################################
-        # TODO:
-        # Deliverable 4: Implement the final layer for the Transformer Translator.  #
-        # This should only take about 1 line of code.                               #
+        # Implement the final layer for the Transformer Translator.                 #
         #############################################################################
         outputs = self.lin_out(inputs)
-                
-        ##############################################################################
-        #                               END OF YOUR CODE                             #
-        ##############################################################################
+
         return outputs
         
 
