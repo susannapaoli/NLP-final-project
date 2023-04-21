@@ -43,9 +43,10 @@ class TransformerTranslatorGloVe(nn.Module):
         seed_torch(0)
         
 #Initialize the embedding layer, the positional embedding  and the BERT pre-trained embedding. #
+        glove_path = './glove.6B.100d.txt'
         self.embeddingL = nn.Embedding(self.input_size,self.hidden_dim)
         self.posembeddingL = nn.Embedding(self.max_length,self.hidden_dim)
-        self.glove_embeddings = vocab.GloVe(name='6B', dim=self.word_embedding_dim)
+        self.glove_embeddings = vocab.GloVe(name='6B', dim=self.word_embedding_dim,cache = glove_path)
 
 # Initialize multi-head self-attention for as many heads as we want #
         self.heads = {}
