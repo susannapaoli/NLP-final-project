@@ -46,7 +46,7 @@ class TransformerTranslatorBERT(nn.Module):
 #Initialize the embedding layer, the positional embedding  and the BERT pre-trained embedding. #
         self.embeddingL = nn.Embedding(self.input_size,self.hidden_dim)
         self.posembeddingL = nn.Embedding(self.max_length,self.hidden_dim)
-        self.bert = BertModel.from_pretrained('bert-base-uncased')
+        self.bert = BertModel.from_pretrained('bert-base-multilingual-uncased')
 
 # Initialize multi-head self-attention for as many heads as we want #
         self.heads = {}
