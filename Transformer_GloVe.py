@@ -1,5 +1,5 @@
 import numpy as np
-
+from torchtext import vocab
 import torch
 from torch import nn
 import random
