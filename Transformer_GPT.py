@@ -109,12 +109,11 @@ class TransformerTranslatorGPT(nn.Module):
         # Embedding layer combining normal and positional embedding. Here we also   #
         # add BERT pre-trained embeddings to enpower our model.                     #
         #############################################################################
-        #token_emb = self.embeddingL(inputs)
-        #positional_emb = self.posembeddingL(torch.arange(inputs.shape[1]).to(self.device))
+        token_emb = self.embeddingL(inputs)
+        positional_emb = self.posembeddingL(torch.arange(inputs.shape[1]).to(self.device))
         gpt_outputs = self.gpt(inputs)[0]
 
-        #embeddings = torch.add(token_emb, positional_emb) + gpt_outputs
-        embeddings = gpt_outputs
+        embeddings = torch.add(token_emb, positional_emb) + gpt_outputs
         return embeddings
         
     def multi_head_attention_mask(self, inputs):
