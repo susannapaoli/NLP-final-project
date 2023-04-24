@@ -7,6 +7,8 @@ Following the notebook's order, we have:
 2) Transformer improved following the paper "Attention is all you need" in Transformer.py
 3) Transformer using BERT embeddings in Transformer_BERT.py
 4) Transformer using XLNet embeddings in Transformer_XLNet.py \
+
+
 Extra) Transformer using GPT2 embeddings in Transformer_GPT.py not actually reported but tested during the project.
 
 
